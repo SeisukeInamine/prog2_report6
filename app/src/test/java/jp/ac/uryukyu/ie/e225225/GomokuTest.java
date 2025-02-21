@@ -1,32 +1,66 @@
 package jp.ac.uryukyu.ie.e225225;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
+/**
+ * Gomokuクラスの単体テスト
+ */
 public class GomokuTest {
 
-    /**
-     * 盤面の初期状態テスト
-     */
     @Test
-    void testInitialize() {
+    public void testCheckWinHorizontal() {
         Gomoku game = new Gomoku();
-        char[][] board = game.getBoard();
-
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                assertEquals('.', board[i][j]); // すべてのマスが初期状態 ('.') であることを確認
-            }
-        }
+        game.placeStone(0, 0);
+        game.placeStone(1, 0);
+        game.placeStone(0, 1);
+        game.placeStone(1, 1);
+        game.placeStone(0, 2);
+        game.placeStone(1, 2);
+        game.placeStone(0, 3);
+        game.placeStone(1, 3);
+        game.placeStone(0, 4); // 'o' が5連続
+        assertEquals('o', game.checkWin());
     }
 
-    /**
-     * 石を置く機能のテスト
-     */
     @Test
-    void testPlaceStone() {
+    public void testCheckWinVertical() {
         Gomoku game = new Gomoku();
-        assertTrue(game.placeStone(7, 7)); // 正常に石を置けるか
-        assertFalse(game.placeStone(7, 7)); // 同じ場所に置けないことを確認
+        game.placeStone(0, 0);
+        game.placeStone(0, 1);
+        game.placeStone(1, 0);
+        game.placeStone(1, 1);
+        game.placeStone(2, 0);
+        game.placeStone(2, 1);
+        game.placeStone(3, 0);
+        game.placeStone(3, 1);
+        game.placeStone(4, 0); // 'o' が縦に5連続
+        assertEquals('o', game.checkWin());
+    }
+
+    @Test
+    public void testCheckWinDiagonalRight() {
+        Gomoku game = new Gomoku();
+        game.placeStone(0, 0);
+        game.placeStone(1, 0);
+        game.placeStone(1, 1);
+        game.placeStone(2, 0);
+        game.placeStone(2, 2);
+        game.placeStone(3, 0);
+        game.placeStone(3, 3);
+        game.placeStone(4, 0);
+        game.placeStone(4, 4); // 'o' が右下斜めに5連続
+        assertEquals('o', game.checkWin());
+    }
+
+    @Test
+    public void testNoWin() {
+        Gomoku game = new Gomoku();
+        game.placeStone(0, 0);
+        game.placeStone(0, 1);
+        game.placeStone(1, 0);
+        game.placeStone(1, 1);
+        game.placeStone(2, 0);
+        assertEquals('.', game.checkWin()); // まだ勝敗なし
     }
 }

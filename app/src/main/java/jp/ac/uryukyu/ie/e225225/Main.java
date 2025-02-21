@@ -1,17 +1,31 @@
 package jp.ac.uryukyu.ie.e225225;
 
+import java.util.Scanner;
+
+/**
+ * 五目並べのゲームを実行するメインクラス
+ */
 public class Main {
     public static void main(String[] args) {
         Gomoku game = new Gomoku();
-        game.printBoard(); // 初期盤面の表示
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
 
-        // いくつか石を置いてみる
-        game.placeStone(7, 7);
-        game.placeStone(7, 8);
-        game.placeStone(8, 8);
-        game.placeStone(6, 6);
+        while (running) {
+            game.printBoard();
+            System.out.print("Enter row and column (e.g., 3 4): ");
+            int x = scanner.nextInt();
+            int y = scanner.nextInt();
 
-        // 石を置いた後の盤面を表示
-        game.printBoard();
+            if (game.placeStone(x, y)) {
+                char winner = game.checkWin();
+                if (winner != '.') {
+                    game.printBoard();
+                    System.out.println("Player " + winner + " wins!");
+                    running = false;
+                }
+            }
+        }
+        scanner.close();
     }
 }
