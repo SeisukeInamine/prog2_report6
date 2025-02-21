@@ -1,111 +1,87 @@
 package jp.ac.uryukyu.ie.e225225;
 
+import java.util.Random;
+
 /**
- * 五目並べの基本実装
- * 盤面の初期化、手番管理、石を置く処理、勝利判定を行う。
+ * 五目並べのゲームロジックを管理するクラス
  */
 public class Gomoku {
     private char[][] board;
-    private boolean turn; // true: 'o', false: 'x'
+    private char currentPlayer;
+    private int mode;
     private static final int SIZE = 15;
+    private Random random;
 
-    /**
-     * コンストラクタ：盤面を初期化
-     */
-    public Gomoku() {
-        initialize();
+    public Gomoku(int mode) {
+        this.board = new char[SIZE][SIZE];
+        this.currentPlayer = 'o';
+        this.mode = mode;
+        this.random = new Random();
+        initializeBoard();
     }
 
-    /**
-     * 盤面の初期化
-     */
-    public void initialize() {
-        board = new char[SIZE][SIZE];
-        turn = true;
+    private void initializeBoard() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                board[i][j] = '.'; // 空白を示す
+                board[i][j] = '.';
             }
         }
     }
 
-    /**
-     * 盤面の表示
-     */
     public void printBoard() {
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                System.out.print(board[i][j] + " ");
+        for (char[] row : board) {
+            for (char cell : row) {
+                System.out.print(cell + " ");
             }
             System.out.println();
         }
     }
 
-    /**
-     * 石を置く
-     * @param x 横座標
-     * @param y 縦座標
-     * @return 成功すればtrue、失敗すればfalse
-     */
-    public boolean placeStone(int x, int y) {
-        if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || board[x][y] != '.') {
-            System.out.println("Invalid move. Try again.");
+    public boolean placeStone(int row, int col) {
+        if (row < 0 || row >= SIZE || col < 0 || col >= SIZE || board[row][col] != '.') {
             return false;
         }
-        board[x][y] = turn ? 'o' : 'x';
-        turn = !turn;
+        board[row][col] = currentPlayer;
+        currentPlayer = (currentPlayer == 'o') ? 'x' : 'o';
         return true;
     }
 
-    /**
-     * 5つ並んでいるかをチェックする
-     * @return 'o' が勝利: 'o', 'x' が勝利: 'x', まだ勝敗が決まっていない: '.'
-     */
+    public void aiMove() {
+        int row, col;
+        do {
+            row = random.nextInt(SIZE);
+            col = random.nextInt(SIZE);
+        } while (board[row][col] != '.');
+
+        System.out.println("AIが " + row + " " + col + " に石を置きました。");
+        placeStone(row, col);
+    }
+
     public char checkWin() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (board[i][j] == '.') {
-                    continue;
-                }
-                char player = board[i][j];
-
-                // 横方向
-                if (j <= SIZE - 5 &&
-                        board[i][j + 1] == player &&
-                        board[i][j + 2] == player &&
-                        board[i][j + 3] == player &&
-                        board[i][j + 4] == player) {
-                    return player;
-                }
-
-                // 縦方向
-                if (i <= SIZE - 5 &&
-                        board[i + 1][j] == player &&
-                        board[i + 2][j] == player &&
-                        board[i + 3][j] == player &&
-                        board[i + 4][j] == player) {
-                    return player;
-                }
-
-                // 右下斜め
-                if (i <= SIZE - 5 && j <= SIZE - 5 &&
-                        board[i + 1][j + 1] == player &&
-                        board[i + 2][j + 2] == player &&
-                        board[i + 3][j + 3] == player &&
-                        board[i + 4][j + 4] == player) {
-                    return player;
-                }
-
-                // 左下斜め
-                if (i <= SIZE - 5 && j >= 4 &&
-                        board[i + 1][j - 1] == player &&
-                        board[i + 2][j - 2] == player &&
-                        board[i + 3][j - 3] == player &&
-                        board[i + 4][j - 4] == player) {
-                    return player;
+                if (board[i][j] != '.' && (checkDirection(i, j, 1, 0) || 
+                                           checkDirection(i, j, 0, 1) || 
+                                           checkDirection(i, j, 1, 1) || 
+                                           checkDirection(i, j, 1, -1))) {
+                    return board[i][j];
                 }
             }
         }
-        return '.'; // 勝者なし
+        return '.';
+    }
+
+    private boolean checkDirection(int row, int col, int dRow, int dCol) {
+        char start = board[row][col];
+        int count = 1;
+        for (int i = 1; i < 5; i++) {
+            int newRow = row + dRow * i;
+            int newCol = col + dCol * i;
+            if (newRow < 0 || newRow >= SIZE || newCol < 0 || newCol >= SIZE || board[newRow][newCol] != start) {
+                return false;
+            }
+            count++;
+        }
+        return count == 5;
     }
 }
